@@ -1,2 +1,5 @@
 streamlit
-openpyxls
+pandas
+openpyxl
+altair
+pymongo
