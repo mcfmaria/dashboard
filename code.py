@@ -8,7 +8,7 @@ from io import StringIO
 # Config
 # -------------------------
 st.set_page_config(page_title="Dashboard Serviços (JSON)", layout="wide")
-PASSWORD = "ln11Col13@"   # <-- mantenha ou troque
+PASSWORD = "ln11Col13#"   # <-- mantenha ou troque
 
 def check_password():
     with st.sidebar:
@@ -23,7 +23,9 @@ def check_password():
 if not check_password():
     st.stop()
 
-st.title("📊 Dashboard de Serviços (usando dados.json)")
+st.title("📊 Produtividade UPS")
+st.write("Útima atualização: 18/11/2025 14:59")
+
 
 # -------------------------
 # Função: carregar JSON local ou via upload
@@ -95,6 +97,14 @@ st.subheader("Pré-visualização dos dados")
 st.dataframe(df, use_container_width=True)
 
 # -------------------------
+# MÉDIA GERAL DE TURNOS
+# -------------------------
+if "TURNOS" in df.columns:
+    media_turnos = df["TURNOS"].mean()
+else:
+    media_turnos = None
+
+# -------------------------
 # CARDS (tenta proteger contra colunas faltando)
 # -------------------------
 def safe_mean(col):
@@ -113,10 +123,82 @@ media_total = safe_mean("MÉDIA")
 total_turnos = safe_sum("TURNOS")
 total_servicos = safe_sum("TOTAL")
 
-col1, col2, col3 = st.columns(3)
-col1.metric("📌 Média Geral", f"{media_total:.2f}" if media_total is not None else "—")
-col2.metric("👷 Total de Turnos", int(total_turnos) if total_turnos is not None else "—")
-col3.metric("🧾 Total de Serviços", int(total_servicos) if total_servicos is not None else "—")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("📌 Média Geral", f"{media_total:.2f}" if media_total else "—")
+col2.metric("👷 Total de Turnos", int(total_turnos) if total_turnos else "—")
+col3.metric("🧾 Total de Serviços", int(total_servicos) if total_servicos else "—")
+col4.metric("📊 Média de TURNOS", f"{media_turnos:.2f}" if media_turnos else "—")
+
+# -------------------------
+# FILTROS ESTILO POWER BI
+# -------------------------
+st.subheader("Filtros (Power BI Style)")
+
+df_filtered = df.copy()
+
+with st.expander("🔎 Mostrar Filtros"):
+
+    for col in df.columns:
+        
+        # -------------------------
+        # Filtro especial para TURNOS
+        # -------------------------
+        if col.upper() == "TURNOS":
+            st.markdown("### 🔢 Filtro de TURNOS (1 a 15)")
+            
+            turnos_list = list(range(1, 16))  # 1 até 15
+            selected_turnos = st.multiselect(
+                "Selecione os TURNOS",
+                turnos_list,
+                default=turnos_list
+            )
+
+            df_filtered = df_filtered[df_filtered["TURNOS"].isin(selected_turnos)]
+            continue
+
+        # -------------------------
+        # Filtro NUMÉRICO tipo Power BI
+        # -------------------------
+        if pd.api.types.is_numeric_dtype(df[col]):
+            min_val = float(df[col].min())
+            max_val = float(df[col].max())
+
+            st.markdown(f"### {col}")
+            value = st.slider(
+                f"Intervalo de {col}",
+                min_val, max_val,
+                (min_val, max_val)
+            )
+
+            df_filtered = df_filtered[
+                (df_filtered[col] >= value[0]) & (df_filtered[col] <= value[1])
+            ]
+
+        # -------------------------
+        # Filtro TEXTO com caixa de busca (igual ao Power BI)
+        # -------------------------
+        else:
+            st.markdown(f"### {col}")
+            search = st.text_input(f"Buscar em {col}", "")
+
+            # filtra pelo texto digitado
+            if search:
+                options = sorted([v for v in df[col].dropna().unique() if search.lower() in str(v).lower()])
+            else:
+                options = sorted(df[col].dropna().unique())
+
+            selected = st.multiselect(
+                f"Selecionar {col}",
+                options,
+                default=options
+            )
+
+            df_filtered = df_filtered[df_filtered[col].isin(selected)]
+
+# substitui df pelo filtrado
+df = df_filtered
+
+st.success("Filtros aplicados com sucesso!")
 
 # -------------------------
 # GRÁFICO 1: CLASSE por PREFIXO (barras empilhadas)
@@ -157,41 +239,7 @@ if "CLASSE" in df.columns:
 else:
     st.info("Coluna 'CLASSE' ausente — donut não foi gerado.")
 
-# -------------------------
-# FILTROS DINÂMICOS PARA TODAS AS COLUNAS
-# -------------------------
-st.subheader("Filtros dos Dados")
 
-df_filtered = df.copy()
-
-with st.expander("🔎 Mostrar filtros"):
-    for col in df.columns:
-        # Verifica tipo
-        if pd.api.types.is_numeric_dtype(df[col]):
-            # Filtro numérico (slider)
-            min_val = float(df[col].min())
-            max_val = float(df[col].max())
-            v1, v2 = st.slider(
-                f"Filtrar {col} (numérico)",
-                min_val, max_val,
-                (min_val, max_val)
-            )
-            df_filtered = df_filtered[(df_filtered[col] >= v1) & (df_filtered[col] <= v2)]
-
-        else:
-            # Filtro textual (multiselect)
-            unique_vals = sorted(df[col].dropna().unique())
-            selected = st.multiselect(
-                f"Filtrar {col}",
-                unique_vals,
-                default=unique_vals  # mostra tudo por padrão
-            )
-            df_filtered = df_filtered[df_filtered[col].isin(selected)]
-
-# Substitui df pelos dados filtrados para todo o dashboard
-df = df_filtered
-
-st.success("Filtros aplicados! Abaixo o dashboard atualizado com os dados filtrados.")
 
 
 
