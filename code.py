@@ -250,16 +250,21 @@ else:
 # -------------------------
 st.subheader("Média da Execução das Equipes por Mês")
 
-# Agrupar por equipe e mês tirando a média da execução
-df_media_mensal = df_filtrado.groupby(["MÊS", "EQUIPE"])["MÉDIA"].mean().reset_index()
+# Como a média já existe na coluna "MÉDIA",
+# basta agrupar por MÊS e EQUIPE e pegar a média dessa média
+df_media_mensal = (
+    df_filtrado.groupby(["MÊS", "EQUIPE"])["MÉDIA"]
+    .mean()
+    .reset_index()
+)
 
-# Gráfico mensal usando Altair
+# Gráfico mensal
 grafico_mensal = (
     alt.Chart(df_media_mensal)
     .mark_bar()
     .encode(
-        x=alt.X("EQUIPE:N", title="EQUIPE"),
-        y=alt.Y("MÉDIA:Q", title="Média Execução"),
+        x=alt.X("EQUIPE:N", title="Equipe"),
+        y=alt.Y("MÉDIA:Q", title="Média de Execução"),
         color=alt.Color("MÊS:N", title="Mês"),
         tooltip=["EQUIPE", "MÊS", "MÉDIA"]
     )
@@ -267,3 +272,4 @@ grafico_mensal = (
 )
 
 st.altair_chart(grafico_mensal, use_container_width=True)
+
