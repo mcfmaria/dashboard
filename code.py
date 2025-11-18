@@ -259,9 +259,9 @@ grafico_mensal = (
     .mark_bar()
     .encode(
         x=alt.X("EQUIPE:N", title="EQUIPE"),
-        y=alt.Y("Execução:Q", title="Média Execução"),
-        color=alt.Color("Mês:N", title="Mês"),
-        tooltip=["Equipe", "Mês", "Execução"]
+        y=alt.Y("MÉDIA:Q", title="Média Execução"),
+        color=alt.Color("MÊS:N", title="Mês"),
+        tooltip=["EQUIPE", "MÊS", "MÉDIA"]
     )
     .properties(width=700, height=450)
 )
