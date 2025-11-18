@@ -248,23 +248,18 @@ else:
 # -------------------------
 # GRÁFICO 2: Coluna da Média mensal 
 # -------------------------
-st.subheader("Média da Execução das Equipes por Mês")
-
-# Como a média já existe na coluna "MÉDIA",
-# basta agrupar por MÊS e EQUIPE e pegar a média dessa média
-
-# Gráfico mensal
-grafico_mensal = (
-    alt.Chart(df_media_mensal)
-    .mark_bar()
-    .encode(
-        x=alt.X("EQUIPE:N", title="Equipe"),
-        y=alt.Y("MÉDIA:Q", title="Média de Execução"),
-        color=alt.Color("MÊS:N", title="Mês"),
-        tooltip=["EQUIPE", "MÊS", "MÉDIA"]
+if "EQUIPE" in df.columns and "MÊS" in df.columns and not df.empty:
+    st.subheader("Média das equipes por mês")
+    grafico1 = (
+        alt.Chart(df)
+        .mark_bar()
+        .encode(
+            x=alt.X("EQUIPE:N", title="Equipe"),
+            y=alt.Y("mean("MÉDIA"):Q", title="Média"),
+            color=alt.Color("MÊS", title="MÊS")
+        )
+        .properties(height=350)
     )
-    .properties(width=700, height=450)
-)
-
-st.altair_chart(grafico_mensal, use_container_width=True)
-
+    st.altair_chart(grafico1, use_container_width=True)
+else:
+    st.info("Colunas 'PREFIXO' e/ou 'CLASSE' ausentes ou sem dados — gráfico 1 não foi gerado.")
