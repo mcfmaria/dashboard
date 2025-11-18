@@ -252,11 +252,6 @@ st.subheader("Média da Execução das Equipes por Mês")
 
 # Como a média já existe na coluna "MÉDIA",
 # basta agrupar por MÊS e EQUIPE e pegar a média dessa média
-df_media_mensal = (
-    df_filtrado.groupby(["MÊS", "EQUIPE"])["MÉDIA"]
-    .mean()
-    .reset_index()
-)
 
 # Gráfico mensal
 grafico_mensal = (
