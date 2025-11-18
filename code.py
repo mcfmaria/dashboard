@@ -52,16 +52,26 @@ def load_json_from_uploader(uploaded_file):
         return None
 
 # Tenta carregar dados.json local
+# Tenta carregar dados.json local
 df = load_json_from_file("dados.json")
 
 # Se não existir, pede upload
 if df is None:
-    st.warning("Arquivo `dados.json` não encontrado na pasta do app. Faça upload do arquivo JSON ou coloque `dados.json` na mesma pasta do app.")
+    st.warning("Arquivo `dados.json` não encontrado...")
     uploaded = st.file_uploader("Enviar dados.json", type=["json"])
     if uploaded:
         df = load_json_from_uploader(uploaded)
     else:
         st.stop()
+
+# ===========================================================
+# 🔧 AJUSTE ESPECIAL DO FILTRO DE EQUIPE  ← AQUI
+# ===========================================================
+if "EQUIPE" in df.columns:
+    df["EQUIPE"] = df["EQUIPE"].astype(str)
+    df["EQUIPE"].replace("nan", "", inplace=True)
+    df["EQUIPE"] = df["EQUIPE"].str.strip()   # remove espaços invisíveis
+# ===========================================================
 
 # -------------------------
 # Pré-processamento simples
