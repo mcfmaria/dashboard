@@ -244,3 +244,26 @@ if "CLASSE" in df.columns and not df.empty:
     st.altair_chart(donut, use_container_width=True)
 else:
     st.info("Coluna 'CLASSE' ausente — donut não foi gerado.")
+
+# -------------------------
+# GRÁFICO 2: Coluna da Média mensal 
+# -------------------------
+st.subheader("Média da Execução das Equipes por Mês")
+
+# Agrupar por equipe e mês tirando a média da execução
+df_media_mensal = df_filtrado.groupby(["Mês", "Equipe"])["Execução"].mean().reset_index()
+
+# Gráfico mensal usando Altair
+grafico_mensal = (
+    alt.Chart(df_media_mensal)
+    .mark_bar()
+    .encode(
+        x=alt.X("Equipe:N", title="Equipe"),
+        y=alt.Y("Execução:Q", title="Média Execução"),
+        color=alt.Color("Mês:N", title="Mês"),
+        tooltip=["Equipe", "Mês", "Execução"]
+    )
+    .properties(width=700, height=450)
+)
+
+st.altair_chart(grafico_mensal, use_container_width=True)
