@@ -250,16 +250,20 @@ else:
 # -------------------------
 if "EQUIPE" in df.columns and "MÊS" in df.columns and not df.empty:
     st.subheader("Média das equipes por mês")
+    
     grafico1 = (
         alt.Chart(df)
         .mark_bar()
         .encode(
             x=alt.X("EQUIPE:N", title="Equipe"),
-            y=alt.Y("mean("MÉDIA"):Q", title="Média"),
-            color=alt.Color("MÊS", title="MÊS")
+            y=alt.Y("mean(MÉDIA):Q", title="Média"),
+            color=alt.Color("MÊS:N", title="Mês"),
+            tooltip=["EQUIPE", "MÊS", "mean(MÉDIA)"]
         )
         .properties(height=350)
     )
+
     st.altair_chart(grafico1, use_container_width=True)
+
 else:
-    st.info("Colunas 'PREFIXO' e/ou 'CLASSE' ausentes ou sem dados — gráfico 1 não foi gerado.")
+    st.info("Colunas 'EQUIPE' e/ou 'MÊS' ausentes ou sem dados — gráfico não gerado.")
