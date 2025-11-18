@@ -158,30 +158,7 @@ with st.sidebar:
             df_filtered = df_filtered[df_filtered["TURNOS"].isin(selected_turnos)]
             continue
 
-        # ======================
-        # 📌 FILTROS TEXTO (COM BUSCA)
-        # ======================
-        if not pd.api.types.is_numeric_dtype(df[col]):
-
-            st.markdown(f"### {col}")
-
-            # caixa de busca
-            search = st.text_input(f"Buscar {col}", "", key=f"search_{col}")
-
-            if search:
-                options = sorted([v for v in df[col].dropna().unique()
-                                  if search.lower() in str(v).lower()])
-            else:
-                options = sorted(df[col].dropna().unique())
-
-            selected = st.selectbox(
-                f"Selecionar {col}",
-                ["Todos"] + options,
-                key=f"select_{col}"
-            )
-
-            if selected != "Todos":
-                df_filtered = df_filtered[df_filtered[col] == selected]
+       
 
 
 
