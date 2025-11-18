@@ -8,7 +8,7 @@ from io import StringIO
 # Config
 # -------------------------
 st.set_page_config(page_title="Dashboard Serviços (JSON)", layout="wide")
-PASSWORD = "main518179234"   # <-- mantenha ou troque
+PASSWORD = "ln11Col13@"   # <-- mantenha ou troque
 
 def check_password():
     with st.sidebar:
@@ -158,41 +158,42 @@ else:
     st.info("Coluna 'CLASSE' ausente — donut não foi gerado.")
 
 # -------------------------
-# GRÁFICO 3: Equipes por mês
+# FILTROS DINÂMICOS PARA TODAS AS COLUNAS
 # -------------------------
-if "MÊS" in df.columns and "EQUIPE" in df.columns:
-    st.subheader("Equipes por Mês")
-    grafico3 = (
-        alt.Chart(df)
-        .mark_bar()
-        .encode(
-            x="MÊS:N",
-            y="EQUIPE:Q",
-            color="MÊS:N"
-        )
-        .properties(height=320)
-    )
-    st.altair_chart(grafico3, use_container_width=True)
-else:
-    st.info("Colunas 'MÊS' e/ou 'EQUIPE' ausentes — gráfico 3 não foi gerado.")
+st.subheader("Filtros dos Dados")
 
-# -------------------------
-# Opcional: botão para baixar o JSON atual (se veio do upload)
-# -------------------------
-st.markdown("---")
-st.write("Opções:")
-col_a, col_b = st.columns(2)
+df_filtered = df.copy()
 
-with col_a:
-    if st.button("🔁 Recarregar dados (ler dados.json local)"):
-        st.experimental_rerun()
+with st.expander("🔎 Mostrar filtros"):
+    for col in df.columns:
+        # Verifica tipo
+        if pd.api.types.is_numeric_dtype(df[col]):
+            # Filtro numérico (slider)
+            min_val = float(df[col].min())
+            max_val = float(df[col].max())
+            v1, v2 = st.slider(
+                f"Filtrar {col} (numérico)",
+                min_val, max_val,
+                (min_val, max_val)
+            )
+            df_filtered = df_filtered[(df_filtered[col] >= v1) & (df_filtered[col] <= v2)]
 
-with col_b:
-    csv_btn = st.download_button(
-        "📥 Baixar CSV",
-        data=df.to_csv(index=False).encode("utf-8"),
-        file_name="dados_convertidos.csv",
-        mime="text/csv"
-    )
+        else:
+            # Filtro textual (multiselect)
+            unique_vals = sorted(df[col].dropna().unique())
+            selected = st.multiselect(
+                f"Filtrar {col}",
+                unique_vals,
+                default=unique_vals  # mostra tudo por padrão
+            )
+            df_filtered = df_filtered[df_filtered[col].isin(selected)]
 
-st.write("Observação: para voltar a usar o MongoDB, corrigiremos a URI depois — por hora você pode atualizar o arquivo `dados.json` na pasta do app e clicar em *Recarregar dados*.")
+# Substitui df pelos dados filtrados para todo o dashboard
+df = df_filtered
+
+st.success("Filtros aplicados! Abaixo o dashboard atualizado com os dados filtrados.")
+
+
+
+
+
