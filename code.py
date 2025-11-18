@@ -130,7 +130,7 @@ col3.metric("🧾 Total de Serviços", int(total_servicos) if total_servicos els
 col4.metric("📊 Média de TURNOS", f"{media_turnos:.2f}" if media_turnos else "—")
 
 # --------------------------------------------
-# FILTROS POWER BI NA SIDEBAR (COLUNA ÚNICA)
+# FILTROS INTERDEPENDENTES (ESTILO POWER BI)
 # --------------------------------------------
 with st.sidebar:
     st.markdown("## 📌 Filtros")
@@ -139,45 +139,50 @@ df_filtered = df.copy()
 
 with st.sidebar:
 
-    for col in df.columns:
+    # Ordem desejada dos filtros
+    filter_order = ["PREFIXO", "EQUIPE", "CLASSE", "SUPERVISOR", "MÊS", "TURNOS"]
 
-        # ======================
-        # 🔢 FILTRO ESPECIAL TURNOS
-        # ======================
-        if col.upper() == "TURNOS":
+    for col in filter_order:
 
+        if col not in df.columns:
+            continue
+
+        # ---------- FILTRO ESPECIAL DE TURNOS ----------
+        if col == "TURNOS":
             st.markdown("### Turnos")
 
-            turnos_options = list(range(1, 16))  # 1 a 15
+            turnos_options = list(range(1, 15+1))  # 1–15
+            turnos_validos = sorted(df_filtered["TURNOS"].dropna().unique())
+
+            # Interseção entre 1..15 e valores existentes
+            avail = [t for t in turnos_options if t in turnos_validos]
+
             selected_turnos = st.multiselect(
                 "Quantidade de Turnos",
-                turnos_options,
-                default=turnos_options
+                avail,
+                default=avail
             )
 
             df_filtered = df_filtered[df_filtered["TURNOS"].isin(selected_turnos)]
             continue
 
-        # ======================
-        # 📌 FILTROS TEXTO (COM BUSCA)
-        # ======================
-        if not pd.api.types.is_numeric_dtype(df[col]):
+        # ---------- FILTRO NORMAL (TEXTOS) ----------
+        st.markdown(f"### {col}")
 
-            st.markdown(f"### {col}")
+        # AQUI ESTÁ O SEGREDO! → opções vêm do df_filtered
+        options = sorted(df_filtered[col].dropna().unique())
 
+        selected = st.selectbox(
+            f"Selecionar {col}",
+            ["Todos"] + options,
+            key=f"select_{col}"
+        )
 
-         
-        
-            options = sorted(df[col].dropna().unique())
+        if selected != "Todos":
+            df_filtered = df_filtered[df_filtered[col] == selected]
 
-            selected = st.selectbox(
-                f"Selecionar {col}",
-                ["Todos"] + options,
-                key=f"select_{col}"
-            )
-
-            if selected != "Todos":
-                df_filtered = df_filtered[df_filtered[col] == selected]
+# Agora df_filtered contém TUDO filtrado
+df = df_filtered
 
 
 
