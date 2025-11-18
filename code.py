@@ -8,7 +8,7 @@ from io import StringIO
 # Config
 # -------------------------
 st.set_page_config(page_title="Dashboard Serviços (JSON)", layout="wide")
-PASSWORD = "ln11Col13#"   # <-- mantenha ou troque
+PASSWORD = "ln11Col13@"   # <-- mantenha ou troque
 
 def check_password():
     with st.sidebar:
@@ -129,76 +129,61 @@ col2.metric("👷 Total de Turnos", int(total_turnos) if total_turnos else "—"
 col3.metric("🧾 Total de Serviços", int(total_servicos) if total_servicos else "—")
 col4.metric("📊 Média de TURNOS", f"{media_turnos:.2f}" if media_turnos else "—")
 
-# -------------------------
-# FILTROS ESTILO POWER BI
-# -------------------------
-st.subheader("Filtros (Power BI Style)")
+# --------------------------------------------
+# FILTROS POWER BI NA SIDEBAR (COLUNA ÚNICA)
+# --------------------------------------------
+with st.sidebar:
+    st.markdown("## 📌 Filtros")
 
 df_filtered = df.copy()
 
-with st.expander("🔎 Mostrar Filtros"):
+with st.sidebar:
 
     for col in df.columns:
-        
-        # -------------------------
-        # Filtro especial para TURNOS
-        # -------------------------
+
+        # ======================
+        # 🔢 FILTRO ESPECIAL TURNOS
+        # ======================
         if col.upper() == "TURNOS":
-            st.markdown("### 🔢 Filtro de TURNOS (1 a 15)")
-            
-            turnos_list = list(range(1, 16))  # 1 até 15
+
+            st.markdown("### Turnos")
+
+            turnos_options = list(range(1, 16))  # 1 a 15
             selected_turnos = st.multiselect(
-                "Selecione os TURNOS",
-                turnos_list,
-                default=turnos_list
+                "Quantidade de Turnos",
+                turnos_options,
+                default=turnos_options
             )
 
             df_filtered = df_filtered[df_filtered["TURNOS"].isin(selected_turnos)]
             continue
 
-        # -------------------------
-        # Filtro NUMÉRICO tipo Power BI
-        # -------------------------
-        if pd.api.types.is_numeric_dtype(df[col]):
-            min_val = float(df[col].min())
-            max_val = float(df[col].max())
+        # ======================
+        # 📌 FILTROS TEXTO (COM BUSCA)
+        # ======================
+        if not pd.api.types.is_numeric_dtype(df[col]):
 
             st.markdown(f"### {col}")
-            value = st.slider(
-                f"Intervalo de {col}",
-                min_val, max_val,
-                (min_val, max_val)
-            )
 
-            df_filtered = df_filtered[
-                (df_filtered[col] >= value[0]) & (df_filtered[col] <= value[1])
-            ]
+            # caixa de busca
+            search = st.text_input(f"Buscar {col}", "", key=f"search_{col}")
 
-        # -------------------------
-        # Filtro TEXTO com caixa de busca (igual ao Power BI)
-        # -------------------------
-        else:
-            st.markdown(f"### {col}")
-            search = st.text_input(f"Buscar em {col}", "")
-
-            # filtra pelo texto digitado
             if search:
-                options = sorted([v for v in df[col].dropna().unique() if search.lower() in str(v).lower()])
+                options = sorted([v for v in df[col].dropna().unique()
+                                  if search.lower() in str(v).lower()])
             else:
                 options = sorted(df[col].dropna().unique())
 
-            selected = st.multiselect(
+            selected = st.selectbox(
                 f"Selecionar {col}",
-                options,
-                default=options
+                ["Todos"] + options,
+                key=f"select_{col}"
             )
 
-            df_filtered = df_filtered[df_filtered[col].isin(selected)]
+            if selected != "Todos":
+                df_filtered = df_filtered[df_filtered[col] == selected]
 
-# substitui df pelo filtrado
-df = df_filtered
 
-st.success("Filtros aplicados com sucesso!")
 
 # -------------------------
 # GRÁFICO 1: CLASSE por PREFIXO (barras empilhadas)
