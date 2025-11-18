@@ -165,11 +165,14 @@ with st.sidebar:
 
             st.markdown(f"### {col}")
 
-    
+
+         
+        
+            options = sorted(df[col].dropna().unique())
 
             selected = st.selectbox(
                 f"Selecionar {col}",
-               
+                ["Todos"] + options,
                 key=f"select_{col}"
             )
 
