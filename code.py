@@ -135,7 +135,7 @@ def safe_sum(col):
         return None
 
 media_total = safe_mean("MÉDIA")
-total_turnos = safe_count("TURNOS")
+total_turnos = safe_sum("TURNOS")
 total_servicos = safe_sum("TOTAL")
 
 col1, col2, col3, col4 = st.columns(4)
