@@ -258,11 +258,8 @@ if "EQUIPE" in df.columns and "MÊS" in df.columns and not df.empty:
        tooltip=[
             "EQUIPE",
             "MÊS",
-            alt.Tooltip("mean(MÉDIA):Q", title="Média")
-        ]
-    )
-    .properties(height=350)
-)
+            alt.Tooltip("mean(MÉDIA):Q", title="Média")])
+    .properties(height=350))
 
 st.altair_chart(grafico1, use_container_width=True)
 
