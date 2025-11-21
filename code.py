@@ -260,6 +260,7 @@ if "EQUIPE" in df.columns and "MÊS" in df.columns and not df.empty:
             y=alt.Y("mean(MÉDIA):Q", title="Média"),
             color=alt.Color("MÊS:N", title="Mês"),
             tooltip=["EQUIPE", "MÊS", "mean(MÉDIA)"]
+            st.write["mean(MÉDIA)"]
         )
         .properties(height=350)
     )
