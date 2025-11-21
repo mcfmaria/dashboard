@@ -8,7 +8,7 @@ from io import StringIO
 # Config
 # -------------------------
 st.set_page_config(page_title="Dashboard Serviços (JSON)", layout="wide")
-PASSWORD = "ln11Col13@"   # <-- mantenha ou troque
+loj = "ln11Col13@"   # <-- mantenha ou troque
 
 def check_password():
     with st.sidebar:
