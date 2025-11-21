@@ -14,7 +14,7 @@ def check_password():
     with st.sidebar:
         st.title("🔐 Login")
         pwd = st.text_input("Digite a senha", type="password")
-        if pwd == PASSWORD:
+        if pwd == loj:
             return True
         elif pwd:
             st.error("Senha incorreta!")
