@@ -251,14 +251,11 @@ else:
 
 if "EQUIPE" in df.columns and "MÊS" in df.columns and not df.empty:
     st.subheader("Média das equipes por mês")
-   grafico1 = (
-    alt.Chart(df)
-    .mark_bar()
-    .encode(
-        x=alt.X("EQUIPE:N", title="Equipe"),
-        y=alt.Y("mean(MÉDIA):Q", title="Média"),
-        color=alt.Color("MÊS:N", title="Mês"),
-        tooltip=[
+   grafico1 = (alt.Chart(df).mark_bar().encode(
+       y=alt.Y("mean(MÉDIA):Q", title="Média"),
+       color=alt.Color("MÊS:N", title="Mês"),
+       x=alt.X("EQUIPE:N", title="Equipe"),
+       tooltip=[
             "EQUIPE",
             "MÊS",
             alt.Tooltip("mean(MÉDIA):Q", title="Média")
